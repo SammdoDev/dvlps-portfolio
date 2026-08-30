@@ -3,6 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Sammdo — Frontend-leaning Full Stack Developer",
+  icons: "/website-icon.png",
   description:
     "Portfolio of Sammdo, a frontend-leaning full stack developer working with Next.js, TypeScript, Laravel, and React.",
 };

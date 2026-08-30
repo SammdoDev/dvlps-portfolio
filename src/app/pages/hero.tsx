@@ -1,41 +1,45 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { LiquidMetalButton } from "../components/liquid-metal-button";
+import {
+  IconCloud,
+  TechHoverPanel,
+  type HoveredTech,
+} from "../components/icon-cloud";
+import { SparkleFrame } from "@/components/ui/sparkle-frame";
 
-const CODE_LINES = [
-  { indent: 0, text: "const developer = {", accent: null },
-  { indent: 1, text: "name: 'Sammdo',", accent: "'Sammdo'" },
-  {
-    indent: 1,
-    text: "role: 'Frontend-leaning Full Stack',",
-    accent: "'Frontend-leaning Full Stack'",
-  },
-  {
-    indent: 1,
-    text: "stack: ['Next.js', 'TypeScript', 'Laravel', 'React'],",
-    accent: "['Next.js', 'TypeScript', 'Laravel', 'React']",
-  },
-  { indent: 1, text: "shipsToProd: true,", accent: "true" },
-  { indent: 0, text: "};", accent: null },
+const TECH_SLUGS = [
+  "typescript",
+  "javascript",
+  "html5",
+  "css3",
+  "git",
+  "flutter",
+  "android",
+  "nodedotjs",
+  "nestjs",
+  "postgresql",
+  "prisma",
+  "firebase",
+  "docker",
+  "jest",
+  "gitlab",
+  "androidstudio",
+  "vercel",
+  "react",
 ];
 
-function renderLine(text: string, accent: string | null) {
-  if (!accent) return text;
-  const i = text.indexOf(accent);
-  if (i === -1) return text;
-  return (
-    <>
-      {text.slice(0, i)}
-      <span className="text-accent">{accent}</span>
-      {text.slice(i + accent.length)}
-    </>
-  );
-}
+const HERO_FACTS = [
+  ["Focus", "Product UI"],
+  ["Stack", "Next.js + TS"],
+  ["Mode", "Remote / Jakarta"],
+] as const;
 
 export default function Hero({ id = "top" }: { id?: string }) {
   const sectionRef = useRef<HTMLElement>(null);
+  const [hoveredTech, setHoveredTech] = useState<HoveredTech>(null);
 
   // exit: hero scrolling away, top of viewport onward
   const { scrollYProgress: exitProgress } = useScroll({
@@ -101,7 +105,10 @@ export default function Hero({ id = "top" }: { id?: string }) {
       </motion.div>
 
       <div className="relative z-10 mx-auto grid max-w-5xl items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
-        <motion.div style={{ y: textY, opacity: textOpacity }}>
+        <motion.div
+          className="order-2 lg:order-1 lg:col-start-1 lg:row-start-1"
+          style={{ y: textY, opacity: textOpacity }}
+        >
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -154,63 +161,55 @@ export default function Hero({ id = "top" }: { id?: string }) {
             <LiquidMetalButton
               label="View Projects"
               onClick={() => {
-                window.location.href = "#projects";
+                document
+                  .querySelector("#projects")
+                  ?.scrollIntoView({ behavior: "smooth" });
               }}
             />
             <LiquidMetalButton
               label="Contact Me"
+              variant="secondary"
               onClick={() => {
-                window.location.href = "#contact";
+                document
+                  .querySelector("#contact")
+                  ?.scrollIntoView({ behavior: "smooth" });
               }}
             />
           </motion.div>
+          <motion.dl
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.35 }}
+            className="mt-10 grid max-w-lg grid-cols-3 border-y border-white/[0.09] py-4"
+          >
+            {HERO_FACTS.map(([label, value]) => (
+              <div
+                key={label}
+                className="border-r border-white/[0.09] px-3 first:pl-0 last:border-0"
+              >
+                <dt className="font-mono-tag text-[9px] uppercase tracking-[0.16em] text-muted">
+                  {label}
+                </dt>
+                <dd className="mt-1 text-[11px] font-medium text-foreground/85 sm:text-xs">
+                  {value}
+                </dd>
+              </div>
+            ))}
+          </motion.dl>
         </motion.div>
-
         <motion.div
           style={{ y: cardY, scale: cardScale, opacity: cardOpacity }}
         >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="glass-card relative rounded-xl p-4 shadow-[0_20px_60px_rgba(0,0,0,0.45)]"
-          >
-            <div
-              aria-hidden
-              className="pointer-events-none absolute -inset-6 -z-10 rounded-2xl opacity-40 blur-2xl"
-              style={{
-                background:
-                  "radial-gradient(circle, var(--accent-glow) 0%, transparent 70%)",
-              }}
-            />
-            <div className="mb-3 flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
-              <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
-              <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
-              <span className="ml-3 font-mono-tag text-[11px] text-muted">
-                profile.ts
-              </span>
-            </div>
-            <div className="font-mono-tag text-[13px] leading-relaxed">
-              {CODE_LINES.map((line, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.35, delay: 0.6 + i * 0.12 }}
-                  style={{ paddingLeft: `${line.indent * 16}px` }}
-                  className="text-foreground/80"
-                >
-                  {renderLine(line.text, line.accent)}
-                </motion.div>
-              ))}
-              <motion.span
-                animate={{ opacity: [1, 0, 1] }}
-                transition={{ duration: 1, repeat: Infinity }}
-                className="mt-1 inline-block h-3.5 w-[7px] translate-y-[2px] bg-accent"
-              />
-            </div>
-          </motion.div>
+          <SparkleFrame>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+            >
+              <IconCloud iconSlugs={TECH_SLUGS} onIconHover={setHoveredTech} />
+              <TechHoverPanel tech={hoveredTech} />
+            </motion.div>
+          </SparkleFrame>
         </motion.div>
       </div>
     </section>

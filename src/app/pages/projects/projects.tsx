@@ -45,12 +45,21 @@ export default function Projects() {
         >
           Things I&apos;ve built
         </motion.h2>
+        <motion.p
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.5, delay: 0.08 }}
+          className="mt-3 max-w-xl text-sm leading-relaxed text-muted"
+        >
+          A selection of product interfaces and systems. Open a project detail to see the role, stack, and decisions behind it.
+        </motion.p>
 
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.5, delay: 0.1 }}
+          transition={{ duration: 0.5, delay: 0.14 }}
           className="mt-6"
         >
           <ProjectsFilter

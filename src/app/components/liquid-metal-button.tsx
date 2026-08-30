@@ -1,9 +1,9 @@
 "use client";
 
-import { liquidMetalFragmentShader, ShaderMount } from "@paper-design/shaders";
-import { Sparkles } from "lucide-react";
+import { ArrowUpRight, Sparkles } from "lucide-react";
 import type React from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { cn } from "../lib/utils";
 
 interface LiquidMetalButtonProps {
   label?: string;
@@ -11,6 +11,9 @@ interface LiquidMetalButtonProps {
   viewMode?: "text" | "icon";
   /** Icon shown when viewMode="icon". Defaults to Sparkles. */
   icon?: React.ReactNode;
+  variant?: "primary" | "secondary";
+  disabled?: boolean;
+  type?: "button" | "submit";
   className?: string;
 }
 
@@ -19,341 +22,158 @@ export function LiquidMetalButton({
   onClick,
   viewMode = "text",
   icon,
+  variant = "primary",
+  disabled = false,
+  type = "button",
   className,
 }: LiquidMetalButtonProps) {
-  const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
   const [ripples, setRipples] = useState<
     Array<{ x: number; y: number; id: number }>
   >([]);
-  const shaderRef = useRef<HTMLDivElement>(null);
-  // biome-ignore lint/suspicious/noExplicitAny: External library without types
-  const shaderMount = useRef<any>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const rippleId = useRef(0);
 
-  const dimensions = useMemo(() => {
-    if (viewMode === "icon") {
-      return {
-        width: 46,
-        height: 46,
-        innerWidth: 42,
-        innerHeight: 42,
-        shaderWidth: 46,
-        shaderHeight: 46,
-      };
-    }
-    const width = Math.max(120, label.length * 8 + 64);
-    return {
-      width,
-      height: 46,
-      innerWidth: width - 4,
-      innerHeight: 42,
-      shaderWidth: width,
-      shaderHeight: 46,
-    };
-  }, [viewMode, label]);
-
   useEffect(() => {
-    const styleId = "shader-canvas-style-exploded";
-    if (!document.getElementById(styleId)) {
-      const style = document.createElement("style");
-      style.id = styleId;
-      style.textContent = `
-        .shader-container-exploded canvas {
-          width: 100% !important;
-          height: 100% !important;
-          display: block !important;
-          position: absolute !important;
-          top: 0 !important;
-          left: 0 !important;
-          border-radius: 100px !important;
-        }
-        @keyframes ripple-animation {
-          0% {
-            transform: translate(-50%, -50%) scale(0);
-            opacity: 0.6;
-          }
-          100% {
-            transform: translate(-50%, -50%) scale(4);
-            opacity: 0;
-          }
-        }
-      `;
-      document.head.appendChild(style);
-    }
-
-    const loadShader = async () => {
-      try {
-        if (shaderRef.current) {
-          if (shaderMount.current?.destroy) {
-            shaderMount.current.destroy();
-          }
-
-          shaderMount.current = new ShaderMount(
-            shaderRef.current,
-            liquidMetalFragmentShader,
-            {
-              u_repetition: 4,
-              u_softness: 0.5,
-              u_shiftRed: 0.3,
-              u_shiftBlue: 0.3,
-              u_distortion: 0,
-              u_contour: 0,
-              u_angle: 45,
-              u_scale: 8,
-              u_shape: 1,
-              u_offsetX: 0.1,
-              u_offsetY: -0.1,
-            },
-            undefined,
-            0.6,
-          );
-        }
-      } catch (error) {
-        console.error("[LiquidMetalButton] Failed to load shader:", error);
+    const styleId = "liquid-metal-btn-style";
+    if (document.getElementById(styleId)) return;
+    const style = document.createElement("style");
+    style.id = styleId;
+    style.textContent = `
+      .liquid-metal-btn {
+        --lm-bezel: linear-gradient(
+          180deg,
+          #f5f5f5 0%,
+          #9a9a9a 14%,
+          #3c3c3c 34%,
+          #101010 52%,
+          #050505 58%,
+          #3c3c3c 76%,
+          #a8a8a8 92%,
+          #f5f5f5 100%
+        );
       }
-    };
-
-    loadShader();
-
-    return () => {
-      if (shaderMount.current?.destroy) {
-        shaderMount.current.destroy();
-        shaderMount.current = null;
+      .liquid-metal-bezel {
+        background: var(--lm-bezel);
       }
-    };
-    // re-init when the shader canvas is resized between icon/text modes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dimensions.shaderWidth, dimensions.shaderHeight]);
-
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-    shaderMount.current?.setSpeed?.(1);
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    setIsPressed(false);
-    shaderMount.current?.setSpeed?.(0.6);
-  };
+      .liquid-metal-face {
+        background: linear-gradient(180deg, #242424 0%, #050505 100%);
+      }
+      .liquid-metal-shine {
+        background: linear-gradient(
+          115deg,
+          transparent 30%,
+          rgba(255, 255, 255, 0.16) 45%,
+          rgba(255, 255, 255, 0.35) 50%,
+          rgba(255, 255, 255, 0.16) 55%,
+          transparent 70%
+        );
+        background-size: 220% 220%;
+        background-position: 120% 50%;
+        transition: background-position 0.6s ease, opacity 0.3s ease;
+      }
+      .liquid-metal-btn:hover .liquid-metal-shine {
+        background-position: -20% 50%;
+      }
+      @keyframes liquid-metal-ripple {
+        0% { transform: translate(-50%, -50%) scale(0); opacity: 0.55; }
+        100% { transform: translate(-50%, -50%) scale(4.5); opacity: 0; }
+      }
+      .liquid-metal-ripple {
+        animation: liquid-metal-ripple 0.6s ease-out;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .liquid-metal-shine { transition: none; }
+        .liquid-metal-ripple { animation: none; opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+  }, []);
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (shaderMount.current?.setSpeed) {
-      shaderMount.current.setSpeed(2.4);
-      setTimeout(() => {
-        if (isHovered) {
-          shaderMount.current?.setSpeed?.(1);
-        } else {
-          shaderMount.current?.setSpeed?.(0.6);
-        }
-      }, 300);
-    }
-
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const ripple = { x, y, id: rippleId.current++ };
-
+      const ripple = {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+        id: rippleId.current++,
+      };
       setRipples((prev) => [...prev, ripple]);
       setTimeout(() => {
         setRipples((prev) => prev.filter((r) => r.id !== ripple.id));
       }, 600);
     }
-
     onClick?.();
   };
 
   return (
-    <div className={`relative inline-block ${className ?? ""}`}>
-      <div
+    <button
+      ref={buttonRef}
+      type={type}
+      disabled={disabled}
+      onClick={handleClick}
+      onMouseDown={() => setIsPressed(true)}
+      onMouseUp={() => setIsPressed(false)}
+      onMouseLeave={() => setIsPressed(false)}
+      aria-label={label}
+      className={cn(
+        "liquid-metal-btn group relative isolate inline-flex shrink-0 select-none items-center justify-center overflow-hidden rounded-full border font-medium transition-all duration-300 ease-out active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-55",
+        viewMode === "icon"
+          ? "h-11 w-11 sm:h-[46px] sm:w-[46px]"
+          : "h-11 gap-2 px-6 sm:h-[46px] sm:px-7",
+        variant === "primary"
+          ? "border-white/30 bg-black text-white shadow-[0_12px_30px_rgba(0,0,0,0.55)] hover:-translate-y-0.5 hover:border-white/60 hover:bg-[#121212] hover:shadow-[0_18px_38px_rgba(0,0,0,0.72)]"
+          : "border-white/[0.16] bg-white/[0.03] text-foreground hover:-translate-y-0.5 hover:border-white/40 hover:bg-white/[0.08]",
+        className,
+      )}
+    >
+      {/* chrome bezel — the visible "ring" */}
+      <span
+        aria-hidden
+        className="absolute inset-0 rounded-full bg-[linear-gradient(115deg,transparent_20%,rgba(255,255,255,0.25)_50%,transparent_80%)] opacity-70"
+      />
+      {/* black face, inset from the bezel so the rim reads as metal */}
+      <span
+        aria-hidden
+        className="absolute inset-px rounded-full bg-[linear-gradient(135deg,rgba(255,255,255,0.13),transparent_45%)]"
         style={{
-          perspective: "1000px",
-          perspectiveOrigin: "50% 50%",
+          boxShadow: isPressed
+            ? "inset 0 2px 8px rgba(0,0,0,0.26)"
+            : "inset 0 1px 1px rgba(255,255,255,0.16)",
+          transition: "box-shadow 0.15s ease",
         }}
+      />
+      {/* hover shine sweep */}
+      <span
+        aria-hidden
+        className="liquid-metal-shine absolute inset-[2px] rounded-full opacity-0 group-hover:opacity-100"
+      />
+
+      <span
+        className="relative z-10 flex items-center gap-2 whitespace-nowrap text-[13px] font-medium"
       >
-        <div
-          style={{
-            position: "relative",
-            width: `${dimensions.width}px`,
-            height: `${dimensions.height}px`,
-            transformStyle: "preserve-3d",
-            transition:
-              "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.4s ease, height 0.4s ease",
-            transform: "none",
-          }}
-        >
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: `${dimensions.width}px`,
-              height: `${dimensions.height}px`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "6px",
-              transformStyle: "preserve-3d",
-              transition:
-                "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.4s ease, height 0.4s ease, gap 0.4s ease",
-              transform: "translateZ(20px)",
-              zIndex: 30,
-              pointerEvents: "none",
-            }}
-          >
-            {viewMode === "icon" &&
-              (icon ?? (
-                <Sparkles
-                  size={16}
-                  style={{
-                    color: "#666666",
-                    filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.5))",
-                    transition: "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                    transform: "scale(1)",
-                  }}
-                />
-              ))}
-            {viewMode === "text" && (
-              <span
-                style={{
-                  fontSize: "14px",
-                  color: "#666666",
-                  fontWeight: 400,
-                  textShadow: "0px 1px 2px rgba(0, 0, 0, 0.5)",
-                  transition: "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                  transform: "scale(1)",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {label}
-              </span>
-            )}
-          </div>
-
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: `${dimensions.width}px`,
-              height: `${dimensions.height}px`,
-              transformStyle: "preserve-3d",
-              transition:
-                "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.4s ease, height 0.4s ease",
-              transform: `translateZ(10px) ${isPressed ? "translateY(1px) scale(0.98)" : "translateY(0) scale(1)"}`,
-              zIndex: 20,
-            }}
-          >
-            <div
-              style={{
-                width: `${dimensions.innerWidth}px`,
-                height: `${dimensions.innerHeight}px`,
-                margin: "2px",
-                borderRadius: "100px",
-                background: "linear-gradient(180deg, #202020 0%, #000000 100%)",
-                boxShadow: isPressed
-                  ? "inset 0px 2px 4px rgba(0, 0, 0, 0.4), inset 0px 1px 2px rgba(0, 0, 0, 0.3)"
-                  : "none",
-                transition:
-                  "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.4s ease, height 0.4s ease, box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
-              }}
+        {viewMode === "icon" ? (
+          icon ?? <Sparkles size={16} />
+        ) : (
+          <>
+            {label}
+            <ArrowUpRight
+              size={15}
+              className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
             />
-          </div>
+          </>
+        )}
+      </span>
 
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: `${dimensions.width}px`,
-              height: `${dimensions.height}px`,
-              transformStyle: "preserve-3d",
-              transition:
-                "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.4s ease, height 0.4s ease",
-              transform: `translateZ(0px) ${isPressed ? "translateY(1px) scale(0.98)" : "translateY(0) scale(1)"}`,
-              zIndex: 10,
-            }}
-          >
-            <div
-              style={{
-                height: `${dimensions.height}px`,
-                width: `${dimensions.width}px`,
-                borderRadius: "100px",
-                boxShadow: isPressed
-                  ? "0px 0px 0px 1px rgba(0, 0, 0, 0.5), 0px 1px 2px 0px rgba(0, 0, 0, 0.3)"
-                  : isHovered
-                    ? "0px 0px 0px 1px rgba(0, 0, 0, 0.4), 0px 12px 6px 0px rgba(0, 0, 0, 0.05), 0px 8px 5px 0px rgba(0, 0, 0, 0.1), 0px 4px 4px 0px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.2)"
-                    : "0px 0px 0px 1px rgba(0, 0, 0, 0.3), 0px 36px 14px 0px rgba(0, 0, 0, 0.02), 0px 20px 12px 0px rgba(0, 0, 0, 0.08), 0px 9px 9px 0px rgba(0, 0, 0, 0.12), 0px 2px 5px 0px rgba(0, 0, 0, 0.15)",
-                transition:
-                  "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.4s ease, height 0.4s ease, box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
-                background: "rgb(0 0 0 / 0)",
-              }}
-            >
-              <div
-                ref={shaderRef}
-                className="shader-container-exploded"
-                style={{
-                  borderRadius: "100px",
-                  overflow: "hidden",
-                  position: "relative",
-                  width: `${dimensions.shaderWidth}px`,
-                  maxWidth: `${dimensions.shaderWidth}px`,
-                  height: `${dimensions.shaderHeight}px`,
-                  transition: "width 0.4s ease, height 0.4s ease",
-                }}
-              />
-            </div>
-          </div>
-
-          <button
-            ref={buttonRef}
-            onClick={handleClick}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            onMouseDown={() => setIsPressed(true)}
-            onMouseUp={() => setIsPressed(false)}
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: `${dimensions.width}px`,
-              height: `${dimensions.height}px`,
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-              outline: "none",
-              zIndex: 40,
-              transformStyle: "preserve-3d",
-              transform: "translateZ(25px)",
-              transition:
-                "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.4s ease, height 0.4s ease",
-              overflow: "hidden",
-              borderRadius: "100px",
-            }}
-            aria-label={label}
-          >
-            {ripples.map((ripple) => (
-              <span
-                key={ripple.id}
-                style={{
-                  position: "absolute",
-                  left: `${ripple.x}px`,
-                  top: `${ripple.y}px`,
-                  width: "20px",
-                  height: "20px",
-                  borderRadius: "50%",
-                  background:
-                    "radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 70%)",
-                  pointerEvents: "none",
-                  animation: "ripple-animation 0.6s ease-out",
-                }}
-              />
-            ))}
-          </button>
-        </div>
-      </div>
-    </div>
+      {ripples.map((ripple) => (
+        <span
+          key={ripple.id}
+          className="liquid-metal-ripple pointer-events-none absolute h-5 w-5 rounded-full bg-white/40"
+          style={{ left: ripple.x, top: ripple.y }}
+        />
+      ))}
+    </button>
   );
 }
+
+export default LiquidMetalButton;

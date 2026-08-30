@@ -16,9 +16,9 @@
   --surface-border: rgba(255, 255, 255, 0.08);
   --foreground: #f2f2f3;
   --muted: #8b8b93;
-  --accent: #6e6bff;
-  --accent-2: #7c3aed;
-  --accent-glow: rgba(110, 107, 255, 0.35);
+  --accent: #f2f2f3;
+  --accent-2: #8b8b93;
+  --accent-glow: rgba(242, 242, 243, 0.16);
 }
 
 @theme inline {

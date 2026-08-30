@@ -102,6 +102,7 @@ export function Footer() {
               <LiquidMetalButton
                 label="View GitHub"
                 viewMode="text"
+                variant="secondary"
                 onClick={() => {
                   window.open(
                     "https://github.com/sammdo",

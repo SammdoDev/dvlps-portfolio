@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import type { MotionValue } from "motion/react";
 import {
   motion,
@@ -8,7 +8,7 @@ import {
   useScroll,
   useTransform,
 } from "motion/react";
-import { ExternalLink, Hammer, ImageIcon, User, Users } from "lucide-react";
+import { ExternalLink, Hammer, ImageIcon, User, Users, X } from "lucide-react";
 import { SiGithub } from "react-icons/si";
 import type { Project } from "./projects-data";
 
@@ -23,11 +23,13 @@ function GalleryItem({
   index,
   total,
   scrollYProgress,
+  onOpenDetail,
 }: {
   project: Project;
   index: number;
   total: number;
   scrollYProgress: MotionValue<number>;
+  onOpenDetail: () => void;
 }) {
   const meta = CATEGORY_META[project.category];
 
@@ -118,6 +120,14 @@ function GalleryItem({
           </p>
 
           <div className="mt-5 flex items-center gap-4">
+            <button
+              type="button"
+              onClick={onOpenDetail}
+              className="flex items-center gap-1.5 font-mono-tag text-xs text-foreground transition-colors hover:text-accent"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+              details
+            </button>
             {project.liveUrl && (
               <a
                 href={project.liveUrl}
@@ -143,6 +153,58 @@ function GalleryItem({
   );
 }
 
+function ProjectDetailDialog({
+  project,
+  onClose,
+}: {
+  project: Project | null;
+  onClose: () => void;
+}) {
+  if (!project) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="fixed inset-0 z-[70] grid place-items-center bg-black/80 p-4 backdrop-blur-md"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${project.title} details`}
+      onMouseDown={onClose}
+    >
+      <motion.article
+        initial={{ opacity: 0, y: 18, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        onMouseDown={(event) => event.stopPropagation()}
+        className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-white/[0.16] bg-[#090909] p-6 shadow-2xl sm:p-8"
+      >
+        <div aria-hidden className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+        <button type="button" onClick={onClose} className="absolute right-4 top-4 rounded-full border border-white/[0.14] p-2 text-muted transition-colors hover:border-white/40 hover:text-foreground" aria-label="Close details">
+          <X className="h-4 w-4" />
+        </button>
+        <p className="font-mono-tag text-[11px] uppercase tracking-[0.2em] text-muted">Case study / {project.year}</p>
+        <h3 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">{project.title}</h3>
+        <p className="mt-5 max-w-xl text-sm leading-relaxed text-muted">{project.longDescription}</p>
+        <div className="mt-7 grid gap-6 border-y border-white/[0.1] py-6 sm:grid-cols-2">
+          <div>
+            <p className="font-mono-tag text-[10px] uppercase tracking-[0.18em] text-muted">Role</p>
+            <p className="mt-2 text-sm text-foreground">{project.role}</p>
+          </div>
+          <div>
+            <p className="font-mono-tag text-[10px] uppercase tracking-[0.18em] text-muted">Stack</p>
+            <p className="mt-2 text-sm text-foreground">{project.tags.join(" · ")}</p>
+          </div>
+        </div>
+        <ul className="mt-6 grid gap-2">
+          {project.highlights.map((highlight) => (
+            <li key={highlight} className="flex gap-3 text-sm text-foreground/85"><span className="font-mono-tag text-white/50">01</span>{highlight}</li>
+          ))}
+        </ul>
+      </motion.article>
+    </motion.div>
+  );
+}
+
 function ActiveIndexLabel({
   value,
   total,
@@ -164,6 +226,7 @@ function ActiveIndexLabel({
 
 export function ProjectsGallery({ projects }: { projects: Project[] }) {
   const targetRef = useRef<HTMLDivElement>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const n = Math.max(projects.length, 1);
 
   const { scrollYProgress } = useScroll({ target: targetRef });
@@ -205,6 +268,7 @@ export function ProjectsGallery({ projects }: { projects: Project[] }) {
               index={i}
               total={n}
               scrollYProgress={scrollYProgress}
+              onOpenDetail={() => setSelectedProject(project)}
             />
           ))}
         </motion.div>
@@ -234,6 +298,7 @@ export function ProjectsGallery({ projects }: { projects: Project[] }) {
           </div>
         </div>
       </div>
+      <ProjectDetailDialog project={selectedProject} onClose={() => setSelectedProject(null)} />
     </div>
   );
 }
