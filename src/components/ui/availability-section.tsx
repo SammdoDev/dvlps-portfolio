@@ -19,7 +19,7 @@ export function AvailabilitySection() {
             Have a thoughtful problem to solve?
           </h2>
           <p className="mt-5 max-w-lg text-sm leading-relaxed text-muted sm:text-base">
-            Mari ubah ide yang rumit menjadi produk digital yang terasa jelas, cepat, dan siap berkembang.
+            Let&apos;s turn a complex idea into a digital product that feels clear, fast, and ready to grow.
           </p>
           <div className="mt-8"><ContactForm /></div>
         </div>

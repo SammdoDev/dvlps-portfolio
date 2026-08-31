@@ -3,7 +3,20 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 
-const STACK = ["Next.js", "TypeScript", "React", "Laravel", "PostgreSQL", "Docker"];
+const STACK = [
+  "Next.js",
+  "TypeScript",
+  "React",
+  "Tailwind CSS",
+  "Laravel",
+  "Node.js",
+  "NestJS",
+  "PostgreSQL",
+  "MongoDB",
+  "Redis",
+  "Docker",
+  "AWS",
+];
 const PRINCIPLES = ["Fast initial load", "Accessible by default", "Built to evolve"];
 
 /**
@@ -80,7 +93,7 @@ export function MinimalTechParallax() {
               className="absolute bottom-0 right-0 w-[72%] rounded-2xl border border-accent/30 bg-[#111116]/90 p-5 shadow-[0_25px_65px_rgba(0,0,0,0.38)] backdrop-blur-xl sm:p-6"
             >
               <div className="flex items-center justify-between font-mono-tag text-[10px] uppercase tracking-[0.2em] text-accent">
-                <span>Core tools</span><span>06</span>
+                <span>Core tools</span><span>12</span>
               </div>
               <div className="mt-6 flex flex-wrap gap-2">
                 {STACK.map((item) => (

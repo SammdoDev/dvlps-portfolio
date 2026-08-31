@@ -1,5 +1,12 @@
 export type Category = "solo" | "duo" | "now";
 
+export type ProjectImage = {
+  /** Local file under public/, for example: /projects/project-one/overview.png */
+  src: string;
+  /** A concise description of the screen or feature shown. */
+  alt: string;
+};
+
 export type Project = {
   title: string;
   description: string;
@@ -8,15 +15,19 @@ export type Project = {
   role: string;
   year: string;
   tags: string[];
+  images: ProjectImage[];
   category: Category;
   collaborator?: string;
   liveUrl?: string;
   repoUrl?: string;
 };
 
-// TODO: swap these placeholders with real project data (title, descriptions,
-// highlights, role, year, tags, category, links) and drop real screenshots
-// in once the image slots are wired up.
+// TODO: replace these placeholders with real project data. Store screenshots
+// under public/projects/<project-slug>/, then add them like this:
+// images: [
+//   { src: "/projects/project-one/overview.png", alt: "Project overview" },
+//   { src: "/projects/project-one/dashboard.png", alt: "Dashboard screen" },
+// ],
 export const PROJECTS: Project[] = [
   {
     title: "Project One",
@@ -32,6 +43,7 @@ export const PROJECTS: Project[] = [
     role: "Full Stack Developer",
     year: "2026",
     tags: ["Next.js", "TypeScript", "PostgreSQL"],
+    images: [],
     category: "solo",
     liveUrl: "#",
     repoUrl: "#",
@@ -50,6 +62,7 @@ export const PROJECTS: Project[] = [
     role: "Frontend Developer",
     year: "2025",
     tags: ["React", "Node.js", "Docker"],
+    images: [],
     category: "duo",
     collaborator: "with @partner-handle",
     liveUrl: "#",
@@ -69,6 +82,7 @@ export const PROJECTS: Project[] = [
     role: "Mobile Developer",
     year: "2025",
     tags: ["Flutter", "Firebase"],
+    images: [],
     category: "solo",
     liveUrl: "#",
     repoUrl: "#",
@@ -87,6 +101,7 @@ export const PROJECTS: Project[] = [
     role: "Backend Developer",
     year: "2024",
     tags: ["Laravel", "PostgreSQL"],
+    images: [],
     category: "duo",
     collaborator: "with @partner-handle",
     liveUrl: "#",
@@ -106,6 +121,7 @@ export const PROJECTS: Project[] = [
     role: "Full Stack Developer",
     year: "2026",
     tags: ["NestJS", "Prisma", "Docker"],
+    images: [],
     category: "now",
     liveUrl: "#",
     repoUrl: "#",
@@ -124,6 +140,7 @@ export const PROJECTS: Project[] = [
     role: "Frontend Developer",
     year: "2026",
     tags: ["React", "Tailwind CSS"],
+    images: [],
     category: "now",
     liveUrl: "#",
     repoUrl: "#",

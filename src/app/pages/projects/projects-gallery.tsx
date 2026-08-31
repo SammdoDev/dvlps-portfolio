@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Image from "next/image";
 import type { MotionValue } from "motion/react";
 import {
   motion,
@@ -8,7 +9,16 @@ import {
   useScroll,
   useTransform,
 } from "motion/react";
-import { ExternalLink, Hammer, ImageIcon, User, Users, X } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  Hammer,
+  ImageIcon,
+  User,
+  Users,
+  X,
+} from "lucide-react";
 import { SiGithub } from "react-icons/si";
 import type { Project } from "./projects-data";
 
@@ -17,6 +27,106 @@ const CATEGORY_META = {
   duo: { label: "duo", Icon: Users },
   now: { label: "wip", Icon: Hammer },
 } as const;
+
+function ProjectImageDeck({ project }: { project: Project }) {
+  const [activeImage, setActiveImage] = useState(0);
+  const image = project.images[activeImage];
+
+  if (!image) {
+    return (
+      <>
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(circle at 30% 20%, var(--accent-glow) 0%, transparent 60%), radial-gradient(circle at 80% 80%, var(--accent) 0%, transparent 55%)",
+          }}
+        />
+        <div className="absolute inset-0 bg-black/20" />
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-foreground/50">
+          <ImageIcon className="h-6 w-6" strokeWidth={1.5} />
+          <span className="font-mono-tag text-[10px] uppercase tracking-widest">
+            Add project images
+          </span>
+        </div>
+      </>
+    );
+  }
+
+  const selectImage = (index: number) => {
+    setActiveImage((index + project.images.length) % project.images.length);
+  };
+
+  return (
+    <>
+      <Image
+        src={image.src}
+        alt={image.alt}
+        fill
+        sizes="(max-width: 768px) 100vw, 50vw"
+        className="object-cover transition-opacity duration-300"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-black/15" />
+
+      {project.images.length > 1 && (
+        <>
+          <div className="absolute inset-x-3 top-3 flex items-center justify-between">
+            <span className="rounded-full border border-white/20 bg-black/45 px-2 py-1 font-mono-tag text-[10px] text-white/80 backdrop-blur-sm">
+              {String(activeImage + 1).padStart(2, "0")} / {String(project.images.length).padStart(2, "0")}
+            </span>
+            <div className="flex gap-1.5">
+              <button
+                type="button"
+                onClick={() => selectImage(activeImage - 1)}
+                aria-label="Previous project image"
+                className="rounded-full border border-white/20 bg-black/45 p-1.5 text-white/80 backdrop-blur-sm transition-colors hover:bg-black/70"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => selectImage(activeImage + 1)}
+                aria-label="Next project image"
+                className="rounded-full border border-white/20 bg-black/45 p-1.5 text-white/80 backdrop-blur-sm transition-colors hover:bg-black/70"
+              >
+                <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+          <div className="absolute bottom-3 left-3 flex gap-2">
+            {project.images.slice(0, 4).map((thumbnail, index) => (
+              <button
+                key={thumbnail.src}
+                type="button"
+                onClick={() => setActiveImage(index)}
+                aria-label={`Show image ${index + 1}: ${thumbnail.alt}`}
+                aria-pressed={index === activeImage}
+                className={`relative h-9 w-12 overflow-hidden rounded-md border transition-colors ${
+                  index === activeImage
+                    ? "border-white"
+                    : "border-white/25 hover:border-white/60"
+                }`}
+              >
+                <Image
+                  src={thumbnail.src}
+                  alt=""
+                  fill
+                  sizes="48px"
+                  className="object-cover"
+                />
+              </button>
+            ))}
+            {project.images.length > 4 && (
+              <span className="grid h-9 w-9 place-items-center rounded-md border border-white/25 bg-black/45 font-mono-tag text-[10px] text-white/80 backdrop-blur-sm">
+                +{project.images.length - 4}
+              </span>
+            )}
+          </div>
+        </>
+      )}
+    </>
+  );
+}
 
 function GalleryItem({
   project,
@@ -58,21 +168,8 @@ function GalleryItem({
       >
         <motion.div className="relative order-2 h-52 overflow-hidden rounded-lg sm:h-72 md:order-1">
           <motion.div style={{ x: imageX }} className="absolute inset-[-15%]">
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "radial-gradient(circle at 30% 20%, var(--accent-glow) 0%, transparent 60%), radial-gradient(circle at 80% 80%, var(--accent) 0%, transparent 55%)",
-              }}
-            />
+            <ProjectImageDeck project={project} />
           </motion.div>
-          <div className="absolute inset-0 bg-black/20" />
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-foreground/50">
-            <ImageIcon className="h-6 w-6" strokeWidth={1.5} />
-            <span className="font-mono-tag text-[10px] uppercase tracking-widest">
-              add screenshot
-            </span>
-          </div>
         </motion.div>
 
         <div className="order-1 md:order-2">
@@ -176,7 +273,7 @@ function ProjectDetailDialog({
         initial={{ opacity: 0, y: 18, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         onMouseDown={(event) => event.stopPropagation()}
-        className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-white/[0.16] bg-[#090909] p-6 shadow-2xl sm:p-8"
+        className="relative max-h-[90svh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-white/[0.16] bg-[#090909] p-6 shadow-2xl sm:p-8"
       >
         <div aria-hidden className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
         <button type="button" onClick={onClose} className="absolute right-4 top-4 rounded-full border border-white/[0.14] p-2 text-muted transition-colors hover:border-white/40 hover:text-foreground" aria-label="Close details">
@@ -185,6 +282,29 @@ function ProjectDetailDialog({
         <p className="font-mono-tag text-[11px] uppercase tracking-[0.2em] text-muted">Case study / {project.year}</p>
         <h3 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">{project.title}</h3>
         <p className="mt-5 max-w-xl text-sm leading-relaxed text-muted">{project.longDescription}</p>
+        {project.images.length > 0 && (
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            {project.images.map((image) => (
+              <figure
+                key={image.src}
+                className="overflow-hidden rounded-xl border border-white/[0.1] bg-white/[0.03]"
+              >
+                <div className="relative aspect-[16/10]">
+                  <Image
+                    src={image.src}
+                    alt={image.alt}
+                    fill
+                    sizes="(max-width: 640px) 100vw, 50vw"
+                    className="object-cover"
+                  />
+                </div>
+                <figcaption className="px-3 py-2 text-xs text-muted">
+                  {image.alt}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        )}
         <div className="mt-7 grid gap-6 border-y border-white/[0.1] py-6 sm:grid-cols-2">
           <div>
             <p className="font-mono-tag text-[10px] uppercase tracking-[0.18em] text-muted">Role</p>

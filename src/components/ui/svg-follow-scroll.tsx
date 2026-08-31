@@ -4,10 +4,10 @@ import { motion, useScroll, useTransform, type MotionValue } from "framer-motion
 import { useRef } from "react";
 
 const ROADMAP = [
-  { stage: "01", label: "SD", title: "Rasa ingin tahu", detail: "Membangun fondasi: mengamati, bertanya, dan mencoba." },
-  { stage: "02", label: "SMP", title: "Eksplorasi logika", detail: "Mulai menyusun cara berpikir yang lebih terstruktur." },
-  { stage: "03", label: "SMA", title: "Membuat pertama kali", detail: "Ide berubah menjadi eksperimen, proyek, dan kebiasaan belajar." },
-  { stage: "04", label: "NOW", title: "Shipping systems", detail: "Merancang pengalaman digital yang jelas, cepat, dan dapat diandalkan." },
+  { stage: "01", label: "EARLY", title: "Curiosity first", detail: "Learning by observing, asking questions, and trying things out." },
+  { stage: "02", label: "EXPLORE", title: "Finding the logic", detail: "Building a more structured way to think through problems." },
+  { stage: "03", label: "BUILD", title: "Making the first things", detail: "Turning ideas into experiments, projects, and a lasting learning habit." },
+  { stage: "04", label: "NOW", title: "Shipping systems", detail: "Designing digital experiences that are clear, fast, and dependable." },
 ] as const;
 
 const Skiper19 = () => {
@@ -31,7 +31,7 @@ const Skiper19 = () => {
               every version.
             </h2>
             <p className="mt-4 max-w-md text-sm leading-relaxed text-muted sm:text-base">
-              Sebuah garis waktu sederhana tentang fondasi, eksplorasi, dan karya yang terus berkembang.
+              A short timeline of the foundations, exploration, and work that continue to shape the practice.
             </p>
           </div>
 

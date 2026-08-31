@@ -7,21 +7,21 @@ const LAYERS = [
   {
     number: "01",
     title: "Product clarity",
-    detail: "Menyederhanakan kebutuhan yang rumit menjadi alur yang mudah dipahami.",
+    detail: "Turning complex requirements into flows people can understand and use with confidence.",
     tag: "DISCOVER",
     output: "flows · priorities · product language",
   },
   {
     number: "02",
     title: "Interface systems",
-    detail: "Membangun komponen yang konsisten, responsif, dan mudah dikembangkan.",
+    detail: "Building responsive, consistent components that are easy to extend over time.",
     tag: "DESIGN",
     output: "tokens · components · responsive states",
   },
   {
     number: "03",
     title: "Reliable delivery",
-    detail: "Mengubah rancangan menjadi produk cepat dengan fondasi teknis yang tahan lama.",
+    detail: "Turning direction into a fast product with a technical foundation built to last.",
     tag: "SHIP",
     output: "quality checks · handoff · iteration",
   },
@@ -56,7 +56,7 @@ export function WorkLayers() {
             </h2>
           </div>
           <p className="max-w-sm text-sm leading-relaxed text-muted sm:text-right">
-            Detail di balik layar menjaga pengalaman di depan tetap terasa sederhana.
+            Thoughtful work behind the scenes keeps the experience in front feeling simple.
           </p>
         </motion.div>
 
